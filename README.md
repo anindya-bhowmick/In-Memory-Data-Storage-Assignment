@@ -32,17 +32,17 @@ Algorithm:
 
 #### Limiting user to 10 calls within any span of 1 minute :
 
-Here the user can make atmost 10 calls in the span of any one minute. No fixed windows are considered for counting the no. of calls. 
+Here the user can make atmost 10 calls in the span of any one minute. No fixed windows are considered for counting the number of calls. 
 
 Algorithm:
 
 - When an user with user ID - UID makes a call to a server at an epoch time Y, we consider a key User:UID .
 - We check if the key already exists in the Redis Database or not. (EXISTS User:UID)
 	- If it exists we first remove elements from the left of the list one by one till we find an element which is greater than Y - 1 epoch time. Then we check the length of the list. 
-	(LINDEX User:UID 0 to get leftmost element and LPOP User:UID to remove. LLEN User:UID)
+	(LINDEX User:UID 0 to get leftmost element and LPOP User:UID to remove. LLEN User:UID to find length of the list)
 	
 		- If the length of the list is equal to 10, we send an error response.
-		- If the length of the list ranges from 1- 9 , we push the current epoch time, Y to the right of the List. We send the proper resposnse to the user. ( RPUSH User:UID Y send response)
-		- If all elements of the List were removed, we have to proceed as if the Key does not exist and do the instruction that follows, because redis removes empty Lists from Database.
-	- If it does not exist we create a List with the given key and push the current Epoch time ,i.e, Y to the right of the List. ( i.e., oldest values are stored on the left, newest added to the right). We then send the proper response to the user. ( RPUSH User:UID Y and send response)
+		- If the length of the list ranges from 1- 9 , we push the current epoch time, Y to the right of the List. We send the proper resposnse to the user. ( RPUSH User:UID Y and send response)
+		- If all elements of the List were removed, we have to proceed as if the Key does not exist and do the instruction that follows, because Redis removes empty Lists from Database.
+	- If it does not exist we create a List with the given key and push the current Epoch time ,i.e, Y to the right of the List. ( i.e., older values are stored on the left, newest added to the right). We then send the proper response to the user. ( RPUSH User:UID Y and send response)
 	
